@@ -151,3 +151,230 @@
 
     .tile p {
       color: #667085;
+  }
+
+  </style>
+</head>
+
+<body>
+  <div id="app"></div>
+
+  <script>
+    const SUPABASE_URL = "https://olrherhbiyyximqpvqjv.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_PNt5PT5An6zineyP6BWanA_dqIlWZQI";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    const app = document.getElementById("app");
+
+    function showLogin() {
+      app.innerHTML = `
+        <div class="auth-page">
+          <div class="card auth-card">
+            <div class="logo">WordStep</div>
+            <div class="subtitle">Изучай слова шаг за шагом</div>
+
+            <h1>Вход</h1>
+
+            <label>Email</label>
+            <input id="email" type="email" placeholder="your@email.com">
+
+            <label>Пароль</label>
+            <input id="password" type="password" placeholder="••••••••">
+
+            <button class="primary" onclick="login()">Войти</button>
+            <button class="secondary" onclick="showSignup()">Создать аккаунт</button>
+
+            <div id="message"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function showSignup() {
+      app.innerHTML = `
+        <div class="auth-page">
+          <div class="card auth-card">
+            <div class="logo">WordStep</div>
+            <div class="subtitle">Создай свой аккаунт</div>
+
+            <h1>Регистрация</h1>
+
+            <label>Имя</label>
+            <input id="name" type="text" placeholder="Твоё имя">
+
+            <label>Email</label>
+            <input id="email" type="email" placeholder="your@email.com">
+
+            <label>Пароль</label>
+            <input id="password" type="password" placeholder="••••••••">
+
+            <label>Роль</label>
+            <select id="role">
+              <option value="student">Ученик</option>
+              <option value="teacher">Учитель</option>
+            </select>
+
+            <button class="primary" onclick="signup()">Зарегистрироваться</button>
+            <button class="secondary" onclick="showLogin()">Назад</button>
+
+            <div id="message"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function signup() {
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const role = document.getElementById("role").value;
+
+      const message = document.getElementById("message");
+
+      if (!name || !email || !password) {
+        message.innerHTML = "Заполни все поля.";
+        return;
+      }
+
+      const { data, error } =
+        await supabaseClient.auth.signUp({
+          email,
+          password
+        });
+
+      if (error) {
+        message.innerHTML = error.message;
+        return;
+      }
+
+      if (data.user) {
+        const { error: profileError } =
+          await supabaseClient
+            .from("profiles")
+            .upsert({
+              id: data.user.id,
+              full_name: name,
+              role: role
+            });
+
+        if (profileError) {
+          message.innerHTML = profileError.message;
+          return;
+        }
+      }
+
+      message.innerHTML =
+        "Аккаунт создан! Проверь почту, если требуется подтверждение.";
+    }
+
+    async function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const message = document.getElementById("message");
+
+      const { error } =
+        await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
+
+      if (error) {
+        message.innerHTML = error.message;
+        return;
+      }
+
+      showDashboard();
+    }
+
+    async function showDashboard() {
+      const {
+        data: { user }
+      } = await supabaseClient.auth.getUser();
+
+      if (!user) {
+        showLogin();
+        return;
+      }
+
+      const { data: profile } =
+        await supabaseClient
+          .from("profiles")
+          .select("full_name, role")
+          .eq("id", user.id)
+          .maybeSingle();
+
+      const name = profile?.full_name || "Пользователь";
+      const role =
+        profile?.role === "teacher" ? "Учитель" : "Ученик";
+
+      app.innerHTML = `
+        <div class="container dashboard">
+          <div class="topbar">
+            <div>
+              <div class="logo">WordStep</div>
+              <span class="role">${role}</span>
+            </div>
+
+            <button class="logout" onclick="logout()">Выйти</button>
+          </div>
+
+          <div class="card">
+            <h1>Привет, ${name}! 👋</h1>
+            <p>Добро пожаловать в WordStep.</p>
+
+            <div class="grid">
+              <div class="tile">
+                <h3>📚 Мои уроки</h3>
+                <p>Здесь будут твои уроки и слова.</p>
+              </div>
+
+              <div class="tile">
+                <h3>📈 Прогресс</h3>
+                <p>Здесь будет отображаться прогресс.</p>
+              </div>
+
+              <div class="tile">
+                <h3>🎯 Тренировка</h3>
+                <p>Здесь появится тренировка слов.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function logout() {
+      await supabaseClient.auth.signOut();
+      showLogin();
+    }
+
+    supabaseClient.auth.onAuthStateChange(
+      (event, session) => {
+        if (session) {
+          showDashboard();
+        } else {
+          showLogin();
+        }
+      }
+    );
+
+    async function start() {
+      const {
+        data: { session }
+      } = await supabaseClient.auth.getSession();
+
+      if (session) {
+        showDashboard();
+      } else {
+        showLogin();
+      }
+    }
+
+    start();
+  </script>
+</body>
+</html>
