@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WordStep</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #182230;
+    }
+
+    .container {
+      width: min(1000px, 92%);
+      margin: 0 auto;
+    }
+
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,.08);
+      border: 1px solid #e6e9ef;
+    }
+
+    .auth-card {
+      width: min(430px, 100%);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .logo {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #667085;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 7px;
+      font-weight: 600;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #d5d9e2;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 13px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary {
+      width: 100%;
+      margin-top: 20px;
+      background: #5865f2;
+      color: white;
+    }
+
+    .secondary {
+      width: 100%;
+      margin-top: 10px;
+      background: #eef0ff;
+      color: #4d59d8;
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #f2f4f7;
+      color: #475467;
+    }
+
+    .dashboard {
+      padding: 30px 0;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .logout {
+      background: white;
+      border: 1px solid #d5d9e2;
+    }
+
+    .role {
+      display: inline-block;
+      background: #eef0ff;
+      color: #4d59d8;
+      padding: 7px 12px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 18px;
+    }
+
+    .tile {
+      background: white;
+      border: 1px solid #e6e9ef;
+      border-radius: 18px;
+      padding: 22px;
+      min-height: 150px;
+    }
+
+    .tile h3 {
+      margin-top: 0;
+    }
+
+    .tile p {
+      color: #667085;
